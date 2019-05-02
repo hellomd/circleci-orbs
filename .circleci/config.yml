@@ -1,0 +1,70 @@
+# There are many config options for building orbs
+# This is one based on a src folder with multiple orbs
+# Mostly based on: https://github.com/CircleCI-Public/circleci-orbs/blob/dc06e359863e90e/.circleci/config.yml
+# Also worth checking:
+# https://github.com/CircleCI-Public/hello-orb/blob/7ffc4de1bf/.circleci/config.yml
+# https://github.com/CircleCI-Public/orb-tools-orb#example
+version: 2.1
+
+orbs:
+  circle-compare-url: iynere/compare-url@0.1.5
+  orb-tools: circleci/orb-tools@8.8.0
+
+executors:
+  main:
+    docker:
+      - image: cibuilds/base
+  cli:
+    docker:
+      - image: circleci/circleci-cli:0.1.5546
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - orb-tools/lint
+          name: lint
+      - dev-release:
+          context: orb-publishing
+          requires:
+            - lint
+
+jobs:
+  dev-release:
+    executor: main
+    steps:
+      - checkout
+      - circle-compare-url/reconstruct
+      - run:
+          name: Publish Dev Version
+          command: |
+            # save value stored in file to a local env var
+            CIRCLE_COMPARE_URL=$(cat CIRCLE_COMPARE_URL.txt)
+            COMMIT_RANGE=$(echo $CIRCLE_COMPARE_URL | sed 's:^.*/compare/::g')
+            echo "Commit range = $COMMIT_RANGE"
+            echo "Checking for changed orbs and packing them"
+            mkdir -p ./build
+            for ORBDIR in src/*/; do
+              orbname=$(basename $ORBDIR)
+              if [[ $(git diff $COMMIT_RANGE --name-status | grep "$orbname") ]]; then
+                echo "[$orbname] changed"
+                [[ -f ${ORBDIR}@orb.yml ]] && echo "[$orbname] found @orb.yml file. Packing it." || \
+                  (echo "[$orbname] missing @orb.yml file" > 1>&2 && exit -1)
+
+                circleci config pack $ORBDIR > build/$orbname.yml
+                circleci orb validate build/$orbname.yml
+
+                echo "[$orbname] orb is valid - publishing it with versions dev:${CIRCLE_BRANCH} and dev:${CIRCLE_BRANCH}-${CIRCLE_SHA1:0:7}"
+
+                circleci orb publish build/$orbname.yml \
+                  hellomd/${orbname}@dev:${CIRCLE_BRANCH} \
+                  --token $CIRCLE_TOKEN
+
+                circleci orb publish build/$orbname.yml \
+                  hellomd/${orbname}@dev:${CIRCLE_BRANCH}-${CIRCLE_SHA1:0:7} \
+                  --token $CIRCLE_TOKEN
+              else
+                echo "[$orbname] orb not modified"
+              fi
+              echo "------------------------------------------------------"
+            done

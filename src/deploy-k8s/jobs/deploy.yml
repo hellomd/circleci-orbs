@@ -1,0 +1,29 @@
+parameters:
+  environment:
+    description: The environment which will be used when deploying
+    type: enum
+    enum: ["development", "staging", "production"]
+  cluster-regions:
+    description: |
+      The Cluster regions this should be deployed to.
+      This can be a comma separated list of identifiers, or *, which means every region
+      The default is *
+    type: string
+    default: "*"
+  e:
+    type: executor
+    default: default
+executor: << parameters.e >>
+steps:
+  - checkout
+  - setup_remote_docker
+  - run:
+      name: "Deploy"
+      command: |
+        if [[ ! -x /kube-ci/deploy.sh ]]; then
+          echo "/kube-ci/deploy.sh script not found or not executable." 1>&2
+          echo "Make sure the image on the passed executor contains this script." 1>&2
+          exit -1
+        fi
+
+        /kube-ci/deploy.sh -r '<< parameters.cluster-regions >>' -e '<< parameters.environment >>'

@@ -1,0 +1,9 @@
+version: 2.1
+
+description: |
+  HelloMD Internal Orb for deployments to k8s
+
+executors:
+  default:
+    docker:
+      - image: hellomd/kube-ci:latest
