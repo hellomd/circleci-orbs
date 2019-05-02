@@ -49,7 +49,7 @@ jobs:
               if [[ $(git diff $COMMIT_RANGE --name-status | grep "$orbname") ]]; then
                 echo "[$orbname] changed"
                 [[ -f ${ORBDIR}@orb.yml ]] && echo "[$orbname] found @orb.yml file. Packing it." || \
-                  (echo "[$orbname] missing @orb.yml file" > 1>&2 && exit -1)
+                  (echo "[$orbname] missing @orb.yml file" 1>&2 && exit -1)
 
                 circleci config pack $ORBDIR > build/$orbname.yml
                 circleci orb validate build/$orbname.yml
