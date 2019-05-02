@@ -22,12 +22,12 @@ workflows:
   version: 2
   main:
     jobs:
-      - orb-tools/lint
+      - orb-tools/lint:
           name: lint
       - dev-release:
           context: orb-publishing
           requires:
-            - lint
+            - orb-tools/lint
 
 jobs:
   dev-release:
