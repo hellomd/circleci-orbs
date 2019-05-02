@@ -27,7 +27,7 @@ workflows:
       - dev-release:
           context: orb-publishing
           requires:
-            - orb-tools/lint
+            - lint
 
 jobs:
   dev-release:
