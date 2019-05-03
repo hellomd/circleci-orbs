@@ -11,9 +11,6 @@ orbs:
   orb-tools: circleci/orb-tools@8.8.0
 
 executors:
-  main:
-    docker:
-      - image: cibuilds/base
   cli:
     docker:
       - image: circleci/circleci-cli:0.1.5546
@@ -31,7 +28,7 @@ workflows:
 
 jobs:
   dev-release:
-    executor: main
+    executor: cli
     steps:
       - checkout
       - circle-compare-url/reconstruct

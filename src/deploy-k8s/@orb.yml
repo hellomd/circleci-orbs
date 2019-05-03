@@ -1,7 +1,7 @@
 version: 2.1
 
 description: |
-  HelloMD Internal Orb for deployments to Kubernetes
+  HelloMD Internal Orb for Deployments to Kubernetes
 
 executors:
   default:
