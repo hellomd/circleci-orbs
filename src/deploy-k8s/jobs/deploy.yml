@@ -1,4 +1,36 @@
 parameters:
+  # Common parameters for general customization
+  should-checkout:
+    description: >
+      Boolean for whether or not to checkout as a first step. Default is true.
+    type: boolean
+    default: true
+  should-setup-remote-docker:
+    description: >
+      Boolean for whether or not to run setup_remote_docker
+    type: boolean
+    default: true
+  should-attach-workspace:
+    description: >
+      Boolean for whether or not to attach to an existing workspace. Default
+      is false.
+    type: boolean
+    default: false
+  workspace-root:
+    description: >
+      Workspace root path that is either an absolute path or a path relative
+      to the working directory. Defaults to './ci-workspace'
+    type: string
+    default: ci-workspace
+  # Specific
+  before-deploy:
+    description: "Steps that will be executed before the deploy script is run"
+    type: steps
+    default: []
+  after-deploy:
+    description: "Steps that will be executed after the deploy script is run"
+    type: steps
+    default: []
   environment:
     description: The environment which will be used when deploying
     type: enum
@@ -15,11 +47,29 @@ parameters:
     default: default
 executor: << parameters.e >>
 steps:
-  - checkout
-  - setup_remote_docker
+  # Setup
+  - when:
+      condition: << parameters.should-checkout >>
+      steps:
+        - checkout
+  - when:
+      condition: << parameters.should-setup-remote-docker >>
+      steps:
+        - setup_remote_docker
+  - when:
+      condition: << parameters.should-attach-workspace >>
+      steps:
+        - attach_workspace:
+            at: << parameters.workspace-root >>
+  - steps: << parameters.before-deploy >>
   - run:
       name: "Deploy"
       command: |
+        # For our Node.js builds
+        if [[ -f << parameters.workspace-root >>/.yarn-cache.tgz ]]; then
+          cp << parameters.workspace-root >>/.yarn-cache.tgz ./.yarn-cache.tgz
+        fi
+
         if [[ ! -x /kube-ci/scripts/deploy.sh ]]; then
           echo "/kube-ci/scripts/deploy.sh script not found or not executable." 1>&2
           echo "Make sure the image on the passed executor contains this script." 1>&2
@@ -27,3 +77,4 @@ steps:
         fi
 
         /kube-ci/scripts/deploy.sh -r '<< parameters.cluster-regions >>' -e '<< parameters.environment >>'
+  - steps: << parameters.after-deploy >>

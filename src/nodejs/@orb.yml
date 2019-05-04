@@ -1,0 +1,9 @@
+version: 2.1
+
+description: |
+  HelloMD Internal Orb for building/testing Node.js Docker images
+
+executors:
+  default:
+    docker:
+      - image: circleci/node:10
