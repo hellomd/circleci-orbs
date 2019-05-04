@@ -65,7 +65,7 @@ steps:
   - run:
       name: "Deploy"
       command: |
-        # For our Node.js deployments
+        # Restore cache for our Node.js deployments
         if [[ -f << parameters.workspace-root >>/.yarn-cache.tgz ]]; then
           cp << parameters.workspace-root >>/.yarn-cache.tgz ./.yarn-cache.tgz
         fi

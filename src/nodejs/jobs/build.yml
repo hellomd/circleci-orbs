@@ -101,7 +101,7 @@ steps:
         fi
 
         mv ~/.yarn-cache.tgz ./.yarn-cache.tgz
-        
+
         docker-compose build ci
 
         docker-compose run ci
