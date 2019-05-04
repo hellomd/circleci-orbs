@@ -68,6 +68,9 @@ steps:
         # Restore cache for our Node.js deployments
         if [[ -f << parameters.workspace-root >>/.yarn-cache.tgz ]]; then
           cp << parameters.workspace-root >>/.yarn-cache.tgz ./.yarn-cache.tgz
+        else
+          echo "existing cache at ./.yarn-cache.tgz not found. Initializing one."
+          tar cvzf ./.yarn-cache.tgz --files-from /dev/null
         fi
 
         if [[ ! -x /kube-ci/scripts/deploy.sh ]]; then
