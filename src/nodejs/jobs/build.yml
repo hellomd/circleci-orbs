@@ -19,7 +19,7 @@ parameters:
   workspace-root:
     description: >
       Workspace root path that is either an absolute path or a path relative
-      to the working directory. Defaults to '.' (the working directory)
+      to the working directory. Defaults to ./ci-workspace
     type: string
     default: ci-workspace
   # Specific
@@ -35,10 +35,6 @@ parameters:
       is true.
     type: boolean
     default: true
-  workspace-root:
-    description: The root of the workspace. Default is ./ci-workspace
-    type: string
-    default: ci-workspace
   should-save-cache:
     description: >
       Boolean for whether or not to save the Yarn cache. Default
