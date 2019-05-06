@@ -43,9 +43,9 @@ parameters:
     default: true
   yarn-cache-key:
     description: >
-      Defaults to v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-c
+      Defaults to v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-d
     type: string
-    default: v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-c
+    default: v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-d
   before-build:
     description: "Steps that will be executed before the build"
     type: steps
@@ -106,7 +106,6 @@ steps:
 
         docker-compose build ci
         docker-compose run ci
-        docker-compose down
 
         echo "retrieving .yarn-cache.tgz from docker image"
 
@@ -118,15 +117,23 @@ steps:
         #   --volume `pwd`:/app/output \
         #   --entrypoint /bin/sh ci -c \
         #   "tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && ls -al /app/output"
-        docker-compose run \
-          --name ci-cp \
-          -d --no-deps \
-          --entrypoint /bin/sh ci \
+
+        # Cp using docker-compose
+        # docker-compose run \
+        #   --name ci-cp \
+        #   -d --no-deps \
+        #   --entrypoint /bin/sh ci \
+        #   -c "mkdir -p /app/output && tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && tail -f /dev/null"
+
+        # docker cp $(docker-compose ps -q ci):/app/output/.yarn-cache.tgz ./
+        # docker-compose down -t 0
+
+        docker run \
+          --name ci-cp
+          -d --entrypoint /bin/sh project_ci \
           -c "mkdir -p /app/output && tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && tail -f /dev/null"
 
-        docker cp $(docker-compose ps -q ci):/app/output/.yarn-cache.tgz ./
-        docker-compose down -t 0
-
+        docker cp ci-cp:/app/output/.yarn-cache.tgz ./ && docker stop ci-cp
         echo "List of files on working directory after build:"
         ls -alh ./
 
