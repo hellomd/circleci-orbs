@@ -129,7 +129,7 @@ steps:
         # docker-compose down -t 0
 
         docker run \
-          --name ci-cp
+          --name ci-cp \
           -d --entrypoint /bin/sh project_ci \
           -c "mkdir -p /app/output && tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && tail -f /dev/null"
 
