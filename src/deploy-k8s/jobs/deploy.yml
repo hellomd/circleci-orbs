@@ -44,7 +44,7 @@ parameters:
     default: "*"
   e:
     type: executor
-    default: default
+    default: kube-ci-executor
 executor: << parameters.e >>
 steps:
   # Setup

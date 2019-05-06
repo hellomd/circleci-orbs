@@ -4,6 +4,6 @@ description: |
   HelloMD Internal Orb for Deployments to Kubernetes
 
 executors:
-  default:
+  kube-ci-executor:
     docker:
       - image: hellomd/kube-ci:latest
