@@ -43,9 +43,9 @@ parameters:
     default: true
   yarn-cache-key:
     description: >
-      Defaults to v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-a
+      Defaults to v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-b
     type: string
-    default: v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-a
+    default: v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-b
   before-build:
     description: "Steps that will be executed before the build"
     type: steps
@@ -105,19 +105,29 @@ steps:
         ls -alh ./
 
         docker-compose build ci
-
         docker-compose run ci
+        docker-compose down
 
         echo "retrieving .yarn-cache.tgz from docker image"
 
+        # It would be great if that worked, but the volume does not seems to work
+        # So let's do it the hacky way
+        # docker-compose run \
+        #   --rm \
+        #   --no-deps \
+        #   --volume `pwd`:/app/output \
+        #   --entrypoint /bin/sh ci -c \
+        #   "tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && ls -al /app/output"
         docker-compose run \
-          --rm \
-          --no-deps \
-          --volume `pwd`:/app/output \
-          --entrypoint /bin/sh ci -c \
-          "tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && ls -al /app/output"
+          --name ci-cp \
+          -d --no-deps \
+          --entrypoint /bin/sh ci \
+          -c "mkdir -p /app/output && tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && tail -f /dev/null"
 
-          echo "List of files on working directory after build:"
+        docker cp $(docker-compose ps -q ci):/app/output/.yarn-cache.tgz ./
+        docker-compose down -t 0
+
+        echo "List of files on working directory after build:"
         ls -alh ./
 
         mv ./.yarn-cache.tgz ~/.yarn-cache.tgz
