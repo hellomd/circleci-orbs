@@ -43,9 +43,9 @@ parameters:
     default: true
   yarn-cache-key:
     description: >
-      Defaults to v1-yarn-packages-{{ checksum "yarn.lock" }}
+      Defaults to v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-a
     type: string
-    default: v1-yarn-packages-{{ checksum "yarn.lock" }}
+    default: v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-a
   before-build:
     description: "Steps that will be executed before the build"
     type: steps
@@ -101,6 +101,9 @@ steps:
 
         mv ~/.yarn-cache.tgz ./.yarn-cache.tgz
 
+        echo "List of files on working directory before build:"
+        ls -alh ./
+
         docker-compose build ci
 
         docker-compose run ci
@@ -113,6 +116,9 @@ steps:
           --volume `pwd`:/app/output \
           --entrypoint /bin/sh ci -c \
           "tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && ls -al /app/output"
+        
+        echo "List of files on working directory after build:"
+        ls -alh ./
 
         mv ./.yarn-cache.tgz ~/.yarn-cache.tgz
   - when:
