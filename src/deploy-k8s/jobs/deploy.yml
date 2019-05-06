@@ -73,6 +73,8 @@ steps:
           tar cvzf ./.yarn-cache.tgz --files-from /dev/null
         fi
 
+        ls -alh ./.yarn-cache.tgz
+
         if [[ ! -x /kube-ci/scripts/deploy.sh ]]; then
           echo "/kube-ci/scripts/deploy.sh script not found or not executable." 1>&2
           echo "Make sure the image on the passed executor contains this script." 1>&2

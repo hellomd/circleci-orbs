@@ -136,6 +136,7 @@ steps:
       steps:
         - run: mkdir -p << parameters.workspace-root >>
         - run: cp ~/.yarn-cache.tgz << parameters.workspace-root >>/.yarn-cache.tgz
+        - run: ls -alh << parameters.workspace-root >>/.yarn-cache.tgz
         - persist_to_workspace:
             root: << parameters.workspace-root >>
             paths:
