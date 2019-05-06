@@ -132,7 +132,7 @@ steps:
           --name ci-cp \
           -d --entrypoint /bin/sh project_ci \
           -c "mkdir -p /app/output && tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && touch /app/output/done && tail -f /dev/null"
-        
+
         until [ $(docker exec ci-cp ls /app/output/done 2>/dev/null) ]
         do
           echo "tar archive not ready yet, sleeping 1s"
