@@ -4,6 +4,10 @@ description: |
   HelloMD Internal Orb for building/testing Node.js Docker images
 
 executors:
-  default:
+  nodejs-executor:
+    parameters:
+      node-version:
+        type: string
+        default: "10"
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:<< parameters.node-version >>

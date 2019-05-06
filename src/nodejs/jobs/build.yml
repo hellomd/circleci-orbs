@@ -54,14 +54,13 @@ parameters:
     description: "Steps that will be executed after the build"
     type: steps
     default: []
-  environment:
-    description: The environment which will be used when building
-    type: enum
-    enum: ["development", "staging", "production"]
-    default: "development"
+  node-version:
+    description: "Node.js docker image tag"
+    type: string
+    default: "10"
   e:
     type: executor
-    default: default
+    default: nodejs-executor
 executor: << parameters.e >>
 steps:
   # Setup
