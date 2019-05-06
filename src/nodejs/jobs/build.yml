@@ -89,7 +89,7 @@ steps:
   # There is docker-compose.yml file
   # There is a CI service on this docker-compose.yml file
   - run:
-      name: "Deploy"
+      name: "Build"
       command: |
         docker-compose kill
         docker-compose rm -v -f
