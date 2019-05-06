@@ -43,9 +43,9 @@ parameters:
     default: true
   yarn-cache-key:
     description: >
-      Defaults to v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-d
+      Defaults to v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-e
     type: string
-    default: v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-d
+    default: v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-e
   before-build:
     description: "Steps that will be executed before the build"
     type: steps
@@ -131,9 +131,9 @@ steps:
         docker run \
           --name ci-cp \
           -d --entrypoint /bin/sh project_ci \
-          -c "mkdir -p /app/output && tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && tail -f /dev/null"
+          -c "mkdir -p /app/output && tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && ls -alh /app/output/ && tail -f /dev/null"
 
-        docker cp ci-cp:/app/output/.yarn-cache.tgz ./ && docker stop ci-cp
+        docker cp ci-cp:/app/output/.yarn-cache.tgz ./ && sleep 5 && docker stop ci-cp
         echo "List of files on working directory after build:"
         ls -alh ./
 
