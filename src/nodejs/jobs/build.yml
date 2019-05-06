@@ -43,9 +43,9 @@ parameters:
     default: true
   yarn-cache-key:
     description: >
-      Defaults to v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-e
+      Defaults to v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-f
     type: string
-    default: v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-e
+    default: v1-nodejs-yarn-packages-{{ checksum "yarn.lock" }}-f
   before-build:
     description: "Steps that will be executed before the build"
     type: steps
