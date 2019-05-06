@@ -116,8 +116,8 @@ steps:
           --volume `pwd`:/app/output \
           --entrypoint /bin/sh ci -c \
           "tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && ls -al /app/output"
-        
-        echo "List of files on working directory after build:"
+
+          echo "List of files on working directory after build:"
         ls -alh ./
 
         mv ./.yarn-cache.tgz ~/.yarn-cache.tgz
