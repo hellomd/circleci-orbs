@@ -131,9 +131,15 @@ steps:
         docker run \
           --name ci-cp \
           -d --entrypoint /bin/sh project_ci \
-          -c "mkdir -p /app/output && tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && ls -alh /app/output/ && tail -f /dev/null"
+          -c "mkdir -p /app/output && tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && touch /app/output/done && tail -f /dev/null"
+        
+        until [ $(docker exec ci-cp ls /app/output/done 2>/dev/null) ]
+        do
+          echo "tar archive not ready yet, sleeping 1s"
+          sleep 1
+        done
 
-        docker cp ci-cp:/app/output/.yarn-cache.tgz ./ && sleep 5 && docker stop ci-cp
+        docker cp ci-cp:/app/output/.yarn-cache.tgz ./ && docker stop ci-cp
         echo "List of files on working directory after build:"
         ls -alh ./
 
