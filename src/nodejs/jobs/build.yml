@@ -16,6 +16,12 @@ parameters:
       is false.
     type: boolean
     default: false
+  should-add-cache-step-to-dockerfiles:
+    description: >
+      Boolean for whether or not to add cache instructions to Dockerfile, if there are none yet. Default
+      is true.
+    type: boolean
+    default: true
   workspace-root:
     description: >
       Workspace root path that is either an absolute path or a path relative
@@ -84,6 +90,25 @@ steps:
             name: Restore Yarn Package Cache
             keys:
               - << parameters.yarn-cache-key >>
+  - when:
+      condition: << parameters.should-add-cache-step-to-dockerfiles >>
+      steps:
+        - run: |
+            for dockerfile in Dockerfile*; do
+              [ -f "$dockerfile" ] || continue
+              has_step=true
+              $(cat $dockerfile | grep 'ADD .yarn-cache.tgz /' 1>/dev/null 2>%1) || has_step=false
+
+              if [ "$has_step" == "false"]; then
+                echo "Yarn cache steps not found on $dockerfile, adding them..."
+                sed 's/\(WORKDIR \/app\)/\1\n\n#BEGIN-ADD-CACHE\nADD .yarn-cache.tgz \/\nRUN yarn config set cache-folder \/app\/.yarn-cache\n#END-ADD-CACHE/g' \
+                  $dockerfile > $dockerfile.new && mv $dockerfile.new $dockerfile
+
+                echo "Yarn cache steps added, new $dockerfile contents:"
+                cat $dockerfile
+              fi
+            done
+
   - steps: << parameters.before-build >>
   # This makes some assumptions:
   # There is docker-compose.yml file
@@ -144,16 +169,22 @@ steps:
         ls -alh ./
 
         mv ./.yarn-cache.tgz ~/.yarn-cache.tgz
+
+        # Create archive for image, but first create a new name to it
+        docker tag project_ci prebuilt-main-image
+        docker save -o prebuilt-main-image.tar prebuilt-main-image
   - when:
       condition: << parameters.should-persist-workspace >>
       steps:
         - run: mkdir -p << parameters.workspace-root >>
         - run: cp ~/.yarn-cache.tgz << parameters.workspace-root >>/.yarn-cache.tgz
+        - run: mv ./prebuilt-main-image.tar << parameters.workspace-root >>/prebuilt-main-image.tar
         - run: ls -alh << parameters.workspace-root >>/.yarn-cache.tgz
         - persist_to_workspace:
             root: << parameters.workspace-root >>
             paths:
               - .yarn-cache.tgz
+              - prebuilt-main-image.tar
   - when:
       condition: << parameters.should-save-cache >>
       steps:

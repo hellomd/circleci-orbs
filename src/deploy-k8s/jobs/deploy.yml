@@ -65,6 +65,12 @@ steps:
   - run:
       name: "Deploy"
       command: |
+        # Restore main docker image if any
+        # @TODO make this recursive, and save images to a dir inside workspace
+        if [[ -f << parameters.workspace-root >>/prebuilt-main-image.tar ]]; then
+          docker load -i << parameters.workspace-root >>/prebuilt-main-image.tar
+        fi
+
         # Restore cache for our Node.js deployments
         if [[ -f << parameters.workspace-root >>/.yarn-cache.tgz ]]; then
           cp << parameters.workspace-root >>/.yarn-cache.tgz ./.yarn-cache.tgz
