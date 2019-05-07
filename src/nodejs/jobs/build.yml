@@ -99,7 +99,7 @@ steps:
               has_step=true
               $(cat $dockerfile | grep 'ADD .yarn-cache.tgz /' 1>/dev/null 2>%1) || has_step=false
 
-              if [ "$has_step" == "false"]; then
+              if [ "$has_step" == "false" ]; then
                 echo "Yarn cache steps not found on $dockerfile, adding them..."
                 sed 's/\(WORKDIR \/app\)/\1\n\n#BEGIN-ADD-CACHE\nADD .yarn-cache.tgz \/\nRUN yarn config set cache-folder \/app\/.yarn-cache\n#END-ADD-CACHE/g' \
                   $dockerfile > $dockerfile.new && mv $dockerfile.new $dockerfile
@@ -153,18 +153,25 @@ steps:
         # docker cp $(docker-compose ps -q ci):/app/output/.yarn-cache.tgz ./
         # docker-compose down -t 0
 
-        docker run \
-          --name ci-cp \
-          -d --entrypoint /bin/sh project_ci \
-          -c "mkdir -p /app/output && tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && touch /app/output/done && tail -f /dev/null"
+        # @TODO Improve this to handle custom dockerfile name
+        has_step=true
+        $(cat Dockerfile | grep 'ADD .yarn-cache.tgz /' 1>/dev/null 2>%1) || has_step=false
 
-        until [ $(docker exec ci-cp ls /app/output/done 2>/dev/null) ]
-        do
-          echo "tar archive not ready yet, sleeping 1s"
-          sleep 1
-        done
+        if [ "$has_step" == "true" ]; then
+          docker run \
+            --name ci-cp \
+            -d --entrypoint /bin/sh project_ci \
+            -c "mkdir -p /app/output && tar czf - /app/.yarn-cache > /app/output/.yarn-cache.tgz && touch /app/output/done && tail -f /dev/null"
 
-        docker cp ci-cp:/app/output/.yarn-cache.tgz ./ && docker stop ci-cp
+          until [ $(docker exec ci-cp ls /app/output/done 2>/dev/null) ]
+          do
+            echo "tar archive not ready yet, sleeping 1s"
+            sleep 1
+          done
+
+          docker cp ci-cp:/app/output/.yarn-cache.tgz ./ && docker stop ci-cp
+        fi
+
         echo "List of files on working directory after build:"
         ls -alh ./
 
