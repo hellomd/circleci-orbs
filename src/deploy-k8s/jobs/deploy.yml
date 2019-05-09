@@ -94,8 +94,8 @@ steps:
         fi
 
         /kube-ci/scripts/deploy.sh \
-          -r '<< parameters.cluster-regions >>' \
-          -e '<< parameters.environment >>' \
-          -n '<< parameters.project-name >>'
+          -r "<< parameters.cluster-regions >>" \
+          -e "<< parameters.environment >>" \
+          -n "<< parameters.project-name >>"
 
   - steps: << parameters.after-deploy >>
