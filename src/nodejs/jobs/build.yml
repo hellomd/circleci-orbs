@@ -172,14 +172,14 @@ steps:
           docker cp ci-cp:/app/output/.yarn-cache.tgz ./ && docker stop ci-cp
         fi
 
+        # Create archive for image, but first create a new name to it
+        docker tag project_ci prebuilt-main-image
+        docker save -o prebuilt-main-image.tar prebuilt-main-image
+
         echo "List of files on working directory after build:"
         ls -alh ./
 
         mv ./.yarn-cache.tgz ~/.yarn-cache.tgz
-
-        # Create archive for image, but first create a new name to it
-        docker tag project_ci prebuilt-main-image
-        docker save -o prebuilt-main-image.tar prebuilt-main-image
   - when:
       condition: << parameters.should-persist-workspace >>
       steps:

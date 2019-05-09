@@ -35,6 +35,12 @@ parameters:
     description: The environment which will be used when deploying
     type: enum
     enum: ["development", "staging", "production"]
+  project-name:
+    description: |
+      The name of the project, this generally will be the name of the object on Kubernetes.
+      Defaults to the CIRCLE_PROJECT_REPONAME environment variable, which is the name of the repository.
+    type: string
+    default: ${CIRCLE_PROJECT_REPONAME}
   cluster-regions:
     description: |
       The Cluster regions this should be deployed to.
@@ -87,5 +93,9 @@ steps:
           exit -1
         fi
 
-        /kube-ci/scripts/deploy.sh -r '<< parameters.cluster-regions >>' -e '<< parameters.environment >>'
+        /kube-ci/scripts/deploy.sh \
+          -r '<< parameters.cluster-regions >>' \
+          -e '<< parameters.environment >>' \
+          -n '<< parameters.project-name >>'
+
   - steps: << parameters.after-deploy >>
