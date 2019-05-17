@@ -1,0 +1,28 @@
+description: >
+  Finalize a Sentry release and set commits. Execute only once per release.
+executor: default
+parameters:
+  org:
+    description: >
+      Sentry organization slug.
+    type: string
+    default: $SENTRY_ORG
+  workspace-root:
+    description: >
+      Workspace root path that is either an absolute path or a path relative
+      to the working directory. Defaults to ./ci-workspace
+    type: string
+    default: "~"
+  before-finalize:
+    description: "Steps that will be executed before the release is finalized on Sentry"
+    type: steps
+    default: []
+  after-finalize:
+    description: "Steps that will be executed after the release is finalized on Sentry"
+    type: steps
+    default: []
+steps:
+  - set-commits
+  - steps: << parameters.before-finalize >>
+  - finalize-release
+  - steps: << parameters.after-finalize >>

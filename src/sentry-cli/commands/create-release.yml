@@ -1,0 +1,28 @@
+description: >
+  Create a new Sentry release. Execute only once per release.
+parameters:
+  org: 
+    description: >
+      Sentry organization slug.
+    type: string
+    default: $SENTRY_ORG
+  project: 
+    description: >
+      Sentry project slug.
+    type: string
+    default: $SENTRY_PROJECT
+  workspace-root: 
+    description: >
+      Workspace root path that is either an absolute path or a path relative
+      to the working directory. Defaults to ./ci-workspace
+    type: string
+    default: "~"
+steps:
+  - attach_workspace:
+      at: << parameters.workspace-root >>
+  - run:
+      name: Create a new Sentry release
+      command: |
+        VERSION=$(cat sentry-release-version.txt)
+        sentry-cli releases --org "<< parameters.org >>" new \
+          --project "<< parameters.project >>" "$VERSION"

@@ -1,0 +1,3 @@
+default:
+  docker:
+    - image: hellomd/ci-node

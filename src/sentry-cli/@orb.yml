@@ -1,0 +1,9 @@
+version: 2.1
+
+description: |
+  HelloMD Internal Orb for managing Sentry projects.
+  Requires the following environment variables to be set.
+  This Orb is based on https://github.com/PicturePipe/sentry-cli-orb one.
+  SENTRY_AUTH_TOKEN
+  SENTRY_ORG
+  SENTRY_PROJECT

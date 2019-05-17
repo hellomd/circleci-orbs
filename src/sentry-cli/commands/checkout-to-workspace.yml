@@ -1,0 +1,15 @@
+description: >
+  Check out source code and persist to workspace.
+parameters:
+  workspace-root:
+    description: >
+      Workspace root path that is either an absolute path or a path relative
+      to the working directory. Defaults to ./ci-workspace
+    type: string
+    default: "~"
+steps:
+  - checkout
+  - persist_to_workspace:
+      root: << parameters.workspace-root >>
+      paths:
+        - project

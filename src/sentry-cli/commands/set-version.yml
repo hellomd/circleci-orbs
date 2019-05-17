@@ -1,0 +1,27 @@
+description: >
+  Set version for Sentry release, write to file and persist to workspace.
+  Will first run `git describe --tags` to set the version. If this fails, the output of
+  `sentry-cli releases propose-version` will be used as version.
+parameters:
+  workspace-root:
+    description: >
+      Workspace root path that is either an absolute path or a path relative
+      to the working directory. Defaults to ./ci-workspace
+    type: string
+    default: "~"
+steps:
+  - attach_workspace:
+      at: << parameters.workspace-root >>
+  - run:
+      name: Set version for Sentry release
+      command: |
+        if git describe --tags > /dev/null 2>&1; then
+          git describe --tags > sentry-release-version.txt
+        else
+          sentry-cli releases propose-version > sentry-release-version.txt
+        fi
+        cat sentry-release-version.txt
+  - persist_to_workspace:
+      root: << parameters.workspace-root >>
+      paths:
+        - project/sentry-release-version.txt

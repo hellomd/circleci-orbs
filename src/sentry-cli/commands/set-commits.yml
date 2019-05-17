@@ -1,0 +1,22 @@
+description: >
+  Set commits of a Sentry release. Execute only once per release.
+parameters:
+  org:
+    description: >
+      Sentry organization slug.
+    type: string
+    default: $SENTRY_ORG
+  workspace-root:
+    description: >
+      Workspace root path that is either an absolute path or a path relative
+      to the working directory. Defaults to ./ci-workspace
+    type: string
+    default: "~"
+steps:
+  - attach_workspace:
+      at: << parameters.workspace-root >>
+  - run:
+      name: Set commits of a Sentry release
+      command: |
+        VERSION=$(cat sentry-release-version.txt)
+        sentry-cli releases --org "<< parameters.org >>" set-commits --auto "$VERSION"

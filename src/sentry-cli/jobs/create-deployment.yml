@@ -1,0 +1,23 @@
+description: >
+  Create a new Sentry release deployment. Execute for each deployment of a release. If the
+  release has been finalized, execute afterwards.
+executor: default
+parameters:
+  env:
+    description: >
+      Sentry environment for this release deployment.
+    type: string
+  org:
+    description: >
+      Sentry organization slug.
+    type: string
+    default: $SENTRY_ORG
+  workspace-root:
+    description: >
+      Workspace root path that is either an absolute path or a path relative
+      to the working directory. Defaults to ./ci-workspace
+    type: string
+    default: "~"
+steps:
+  - create-deployment:
+      env: << parameters.env >>
