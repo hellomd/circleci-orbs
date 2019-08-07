@@ -25,6 +25,21 @@ workflows:
           context: orb-publishing
           requires:
             - lint
+  update-temp:
+    triggers:
+      - schedule:
+          cron: "*/2 * * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - orb-tools/lint:
+          name: lint
+      - dev-release:
+          context: orb-publishing
+          requires:
+            - lint
 
 jobs:
   dev-release:
