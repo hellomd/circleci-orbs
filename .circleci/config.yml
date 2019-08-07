@@ -25,10 +25,10 @@ workflows:
           context: orb-publishing
           requires:
             - lint
-  update-temp:
+  daily-release:
     triggers:
       - schedule:
-          cron: "*/2 * * * *"
+          cron: "* * * * *"
           filters:
             branches:
               only:
@@ -36,7 +36,7 @@ workflows:
     jobs:
       - orb-tools/lint:
           name: lint
-      - dev-release:
+      - daily-release:
           context: orb-publishing
           requires:
             - lint
@@ -78,5 +78,40 @@ jobs:
               else
                 echo "[$orbname] orb not modified"
               fi
+              echo "------------------------------------------------------"
+            done
+
+  daily-release:
+    executor: cli
+    steps:
+      - checkout
+      - circle-compare-url/reconstruct
+      - run:
+          name: Publish Dev Version
+          command: |
+            # save value stored in file to a local env var
+            CIRCLE_COMPARE_URL=$(cat CIRCLE_COMPARE_URL.txt)
+            COMMIT_RANGE=$(echo $CIRCLE_COMPARE_URL | sed 's:^.*/compare/::g')
+            echo "Commit range = $COMMIT_RANGE"
+            echo "Checking for changed orbs and packing them"
+            mkdir -p ./build
+            for ORBDIR in src/*/; do
+              orbname=$(basename $ORBDIR)
+              echo "[$orbname] changed"
+              [[ -f ${ORBDIR}@orb.yml ]] && echo "[$orbname] found @orb.yml file. Packing it." || \
+                (echo "[$orbname] missing @orb.yml file" 1>&2 && exit -1)
+
+              circleci config pack $ORBDIR > build/$orbname.yml
+              circleci orb validate build/$orbname.yml
+
+              echo "[$orbname] orb is valid - publishing it with versions dev:${CIRCLE_BRANCH} and dev:${CIRCLE_BRANCH}-${CIRCLE_SHA1:0:7}"
+
+              circleci orb publish build/$orbname.yml \
+                hellomd/${orbname}@dev:${CIRCLE_BRANCH} \
+                --token $CIRCLE_TOKEN
+
+              circleci orb publish build/$orbname.yml \
+                hellomd/${orbname}@dev:${CIRCLE_BRANCH}-${CIRCLE_SHA1:0:7} \
+                --token $CIRCLE_TOKEN
               echo "------------------------------------------------------"
             done
