@@ -93,7 +93,7 @@ steps:
           exit -1
         fi
 
-        /kube-ci/scripts/deploy.sh \
+        IS_CI="true" COMMIT_SHA1="${CIRCLE_SHA1}" BUILD_NUM="${CIRCLE_BUILD_NUM}" /kube-ci/scripts/deploy.sh \
           -r "<< parameters.cluster-regions >>" \
           -e "<< parameters.environment >>" \
           -n "<< parameters.project-name >>"
