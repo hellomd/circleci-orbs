@@ -1,0 +1,19 @@
+parameters:
+  cache-key-prefix:
+    default: "v1-bundle-ios"
+    type: string
+  working-dir:
+    default: ios
+    type: string
+  steps:
+    - restore_cache:
+        keys:
+          - << parameters.cache-key-prefix >>-{{ checksum "<< parameters.working-dir >>/Gemfile.lock" }}-{{ arch }}-{{ .Branch }}
+          - << parameters.cache-key-prefix >>-{{ checksum "<< parameters.working-dir >>/Gemfile.lock" }}-{{ arch }}-
+    - run:
+        command: bundle install --path vendor/bundle
+        working_directory: << parameters.working-dir >>
+    - save_cache:
+        key: << parameters.cache-key-prefix >>-{{ checksum "<< parameters.working-dir >>/Gemfile.lock" }}-{{ arch }}-{{ .Branch }}
+        paths:
+          - << parameters.working-dir >>/vendor/bundle

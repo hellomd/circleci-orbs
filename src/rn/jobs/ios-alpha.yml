@@ -1,0 +1,69 @@
+parameters:
+  # Common parameters for general customization
+  should-checkout:
+    description: >
+      Boolean for whether or not to checkout as a first step..
+    type: boolean
+    default: false
+  should-attach-workspace:
+    description: >
+      Boolean for whether or not to attach to an existing workspace.
+    type: boolean
+    default: true
+  workspace-root:
+    description: >
+      Workspace root path that is either an absolute path or a path relative
+      to the working directory.
+    type: string
+    default: ~/project
+  before:
+    type: steps
+    default: []
+  after:
+    type: steps
+    default: []
+  # Specific
+  e:
+    type: executor
+    default: ios
+  should-bundle-install:
+    description: >
+      Boolean for whether or not to run bundle install
+    type: boolean
+    default: false
+executor: << parameters.e >>
+steps:
+  # Setup
+  - when:
+      condition: << parameters.should-checkout >>
+      steps:
+        - checkout
+  - when:
+      condition: << parameters.should-attach-workspace >>
+      steps:
+        - attach_workspace:
+            at: << parameters.workspace-root >>
+  - run:
+      name: Set Ruby Version
+      command: echo "ruby-2.6" > ~/.ruby-version
+  - steps: << parameters.before >>
+  - when:
+      condition: << parameters.should-bundle-install >>
+      steps:
+        - bundle-install
+        - run:
+            name: "List of files after bundle-install"
+            command: ls -alh ./
+  - run:
+      name: "List of files before running run-lane command with lane: alpha"
+      command: ls -alh ./
+  - run-lane:
+      lane: alpha
+  - run:
+      name: Copy artifacts
+      command: |
+        mkdir -p /tmp/artifacts
+        cp ios/*.ipa /tmp/artifacts/
+        cp ios/*.dSYM* /tmp/artifacts/
+  - store_artifacts:
+      path: /tmp/artifacts

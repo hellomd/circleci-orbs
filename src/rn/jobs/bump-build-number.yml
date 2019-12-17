@@ -1,0 +1,73 @@
+parameters:
+  # Common parameters for general customization
+  should-checkout:
+    description: >
+      Boolean for whether or not to checkout as a first step.
+    type: boolean
+    default: true
+  should-attach-workspace:
+    description: >
+      Boolean for whether or not to attach to an existing workspace.
+    type: boolean
+    default: false
+  should-persist-workspace:
+    description: >
+      Boolean for whether or not to persist to workspace.
+    type: boolean
+    default: true
+  workspace-root:
+    description: >
+      Workspace root path that is either an absolute path or a path relative
+      to the working directory.
+    type: string
+    default: ~/project
+  before:
+    type: steps
+    default: []
+  after:
+    type: steps
+    default: []
+  # Specific
+  e:
+    type: executor
+    default: ios
+  should-bundle-install:
+    description: >
+      Boolean for whether or not to run bundle install.
+    type: boolean
+    default: true
+executor: << parameters.e >>
+steps:
+  # Setup
+  - when:
+      condition: << parameters.should-checkout >>
+      steps:
+        - checkout
+  - when:
+      condition: << parameters.should-attach-workspace >>
+      steps:
+        - attach_workspace:
+            at: << parameters.workspace-root >>
+  - steps: << parameters.before >>
+  - run:
+      name: Set Ruby Version
+      command: echo "ruby-2.6" > ~/.ruby-version
+  - when:
+      condition: << parameters.should-bundle-install >>
+      steps:
+        - bundle-install
+        - run:
+            name: "List of files after bundle-install"
+            command: ls -alh ./
+  - run-lane:
+      lane: ibn
+  - when:
+      condition: << parameters.should-persist-workspace >>
+      steps:
+        - run:
+            name: "List of files before persisting to workspace-root"
+            command: ls -alh ./
+        - persist_to_workspace:
+            root: << parameters.workspace-root >>
+            paths:
+              - .

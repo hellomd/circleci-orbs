@@ -1,0 +1,18 @@
+parameters:
+  platform:
+    default: "ios"
+    type: enum
+    enum: ["ios", "android"]
+  args:
+    default: ""
+    type: string
+  lane:
+    type: string
+  working-dir:
+    default: "ios"
+    type: string
+steps:
+  - run:
+      name: Run fastlane
+      command: DELIVER_ITMSTRANSPORTER_ADDITIONAL_UPLOAD_PARAMETERS="-t DAV" bundle exec fastlane << parameters.platform >> << parameters.lane >> << parameters.args >>
+      working_directory: << parameters.working-dir >>

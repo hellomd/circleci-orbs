@@ -1,0 +1,22 @@
+version: 2.1
+
+description: |
+  HelloMD Internal Orb for Building Deploying React Native Apps
+
+executors:
+  ios:
+    parameters:
+      xcode-version:
+        type: string
+        default: 11.1.0
+    macos:
+      xcode: << parameters.xcode-version >>
+    # This is the default behavior now: https://discuss.circleci.com/t/xcode-11-gm-seed-2-released/32505/27
+    # shell: /bin/bash --login -eo pipefail
+  android:
+    parameters:
+      api-version:
+        type: string
+        default: 28
+    docker:
+      image: circleci/android:api-<< parameters.api-version >>-node
