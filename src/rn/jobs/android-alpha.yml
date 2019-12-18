@@ -67,7 +67,7 @@ steps:
       command: |
         mkdir -p /tmp/artifacts
         cp android/app/build/outputs/bundle/release/* /tmp/artifacts/
-        cp android/app/build/reports/* /tmp/artifacts/
+        [[ -d android/app/build/reports ]] && cp -r android/app/build/reports /tmp/artifacts/
   - store_artifacts:
       path: /tmp/artifacts
   - steps: << parameters.after >>
