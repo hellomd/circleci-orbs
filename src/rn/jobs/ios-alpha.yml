@@ -58,6 +58,9 @@ steps:
       name: "List of files before running run-lane command with lane: alpha"
       command: ls -alh ./
   - run-lane:
+      lane: run
+      args: clear_derived_data
+  - run-lane:
       lane: alpha
       platform: ios
   - run:
