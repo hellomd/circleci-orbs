@@ -25,12 +25,12 @@ parameters:
   # Specific
   e:
     type: executor
-    default: ios
+    default: android
   should-bundle-install:
     description: >
       Boolean for whether or not to run bundle install
     type: boolean
-    default: false
+    default: true
 executor: << parameters.e >>
 steps:
   # Setup
@@ -43,9 +43,6 @@ steps:
       steps:
         - attach_workspace:
             at: << parameters.workspace-root >>
-  - run:
-      name: Set Ruby Version
-      command: echo "ruby-2.6" > ~/.ruby-version
   - steps: << parameters.before >>
   - when:
       condition: << parameters.should-bundle-install >>
@@ -57,14 +54,19 @@ steps:
   - run:
       name: "List of files before running run-lane command with lane: alpha"
       command: ls -alh ./
+  - run:
+      name: "Set environment variables"
+      command: |
+        echo $ANDROID_DEPLOYER_SVC_ACCOUNT | base64 --decode > ./.android-deployer-svc-acc.json
+        echo 'export SUPPLY_JSON_KEY="./.android-deployer-svc-acc.json"' >> $BASH_ENV
   - run-lane:
       lane: alpha
-      platform: ios
+      platform: android
   - run:
       name: Copy artifacts
       command: |
         mkdir -p /tmp/artifacts
-        cp ios/*.ipa /tmp/artifacts/
-        cp ios/*.dSYM* /tmp/artifacts/
+        cp android/app/build/outputs/bundle*.ipa /tmp/artifacts/
+        cp android/app/build/reports/* /tmp/artifacts/
   - store_artifacts:
       path: /tmp/artifacts
