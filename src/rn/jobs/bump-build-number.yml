@@ -79,12 +79,15 @@ steps:
         - run-lane:
             lane: ibn
             platform: ios
+            args: should_push:false
   - when:
       condition: << parameters.should-bump-android >>
       steps:
         - run-lane:
             lane: ibn
             platform: android
+            args: should_push:false
+  - run: git push -u origin $(git branch-name)
   - when:
       condition: << parameters.should-persist-workspace >>
       steps:
