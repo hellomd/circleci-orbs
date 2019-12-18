@@ -9,7 +9,7 @@ parameters:
   lane:
     type: string
   working-dir:
-    default: "ios"
+    default: "./"
     type: string
 steps:
   - run:
