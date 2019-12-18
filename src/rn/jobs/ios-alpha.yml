@@ -67,7 +67,7 @@ steps:
       name: Copy artifacts
       command: |
         mkdir -p /tmp/artifacts
-        cp ios/*.ipa /tmp/artifacts/
-        cp ios/*.dSYM* /tmp/artifacts/
+        cp ./*.ipa /tmp/artifacts/
+        cp ./*.dSYM* /tmp/artifacts/
   - store_artifacts:
       path: /tmp/artifacts
