@@ -87,7 +87,7 @@ steps:
             lane: ibn
             platform: android
             args: should_push:false
-  - run: git push -u origin $(git branch-name)
+  - run: git push -u origin $(git rev-parse --abbrev-ref HEAD)
   - when:
       condition: << parameters.should-persist-workspace >>
       steps:
