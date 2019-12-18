@@ -43,7 +43,6 @@ steps:
       steps:
         - attach_workspace:
             at: << parameters.workspace-root >>
-  - steps: << parameters.before >>
   - when:
       condition: << parameters.should-bundle-install >>
       steps:
@@ -59,6 +58,7 @@ steps:
       command: |
         echo $ANDROID_DEPLOYER_SVC_ACCOUNT | base64 --decode > ./.android-deployer-svc-acc.json
         echo 'export SUPPLY_JSON_KEY="./.android-deployer-svc-acc.json"' >> $BASH_ENV
+  - steps: << parameters.before >>
   - run-lane:
       lane: alpha
       platform: android

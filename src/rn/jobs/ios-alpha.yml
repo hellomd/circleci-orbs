@@ -46,7 +46,6 @@ steps:
   - run:
       name: Set Ruby Version
       command: echo "ruby-2.6" > ~/.ruby-version
-  - steps: << parameters.before >>
   - when:
       condition: << parameters.should-bundle-install >>
       steps:
@@ -57,9 +56,10 @@ steps:
   - run:
       name: "List of files before running run-lane command with lane: alpha"
       command: ls -alh ./
-  - run-lane:
-      lane: run
-      args: clear_derived_data
+  - steps: << parameters.before >>
+  # - run-lane:
+  #     lane: run
+  #     args: clear_derived_data
   - run-lane:
       lane: alpha
       platform: ios
