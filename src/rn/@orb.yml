@@ -16,7 +16,7 @@ executors:
   android:
     parameters:
       api-version:
-        type: string
+        type: integer
         default: 28
     docker:
       - image: circleci/android:api-<< parameters.api-version >>-node
