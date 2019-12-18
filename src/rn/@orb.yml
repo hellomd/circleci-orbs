@@ -19,4 +19,6 @@ executors:
         type: string
         default: 28
     docker:
-      image: circleci/android:api-<< parameters.api-version >>-node
+      - image: circleci/android:api-<< parameters.api-version >>-node
+    environment:
+      JVM_OPTS: -Xmx3200m

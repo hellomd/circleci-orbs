@@ -21,6 +21,16 @@ parameters:
       to the working directory.
     type: string
     default: ~/project
+  should-bump-ios:
+    description: >
+      Bump build number on IOS - Defaults to true
+    type: boolean
+    default: true
+  should-bump-android:
+    description: >
+      Bump build number on Android - Defaults to true
+    type: boolean
+    default: true
   before:
     type: steps
     default: []
@@ -48,10 +58,14 @@ steps:
       steps:
         - attach_workspace:
             at: << parameters.workspace-root >>
-  - steps: << parameters.before >>
   - run:
       name: Set Ruby Version
       command: echo "ruby-2.6" > ~/.ruby-version
+  - when:
+      condition: << parameters.should-checkout >>
+      steps:
+        - checkout
+  - steps: << parameters.before >>
   - when:
       condition: << parameters.should-bundle-install >>
       steps:
@@ -59,8 +73,18 @@ steps:
         - run:
             name: "List of files after bundle-install"
             command: ls -alh ./
-  - run-lane:
-      lane: ibn
+  - when:
+      condition: << parameters.should-bump-ios >>
+      steps:
+        - run-lane:
+            lane: ibn
+            platform: ios
+  - when:
+      condition: << parameters.should-bump-android >>
+      steps:
+        - run-lane:
+            lane: ibn
+            platform: android
   - when:
       condition: << parameters.should-persist-workspace >>
       steps:
