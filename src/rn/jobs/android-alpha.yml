@@ -70,3 +70,4 @@ steps:
         cp android/app/build/reports/* /tmp/artifacts/
   - store_artifacts:
       path: /tmp/artifacts
+  - steps: << parameters.after >>
