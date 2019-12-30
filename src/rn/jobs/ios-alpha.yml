@@ -16,6 +16,11 @@ parameters:
       to the working directory.
     type: string
     default: ~/project
+  build-lane-args:
+    description: >
+      Arguments to pass to the run-lane that runs the build (build lane)
+    type: string
+    default: ''
   before:
     type: steps
     default: []
@@ -63,6 +68,7 @@ steps:
   - run-lane:
       lane: alpha
       platform: ios
+      args: << parameters.build-lane-args >>
   - run:
       name: Copy artifacts
       command: |
