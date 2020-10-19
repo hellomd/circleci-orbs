@@ -77,7 +77,8 @@ steps:
   - when:
       condition: << parameters.should-setup-remote-docker >>
       steps:
-        - setup_remote_docker
+        - setup_remote_docker:
+            version: 19.03.13
   - when:
       condition: << parameters.should-attach-workspace >>
       steps:
